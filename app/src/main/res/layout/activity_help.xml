@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HelpActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:translationZ="10dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="right|center_horizontal"
+            android:paddingEnd="10dp">
+
+            <ImageView
+                android:id="@+id/img_back"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_baseline_arrow_back_24"
+                app:tint="#fff" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/toolbar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nunito_sans"
+            android:letterSpacing="0.1"
+            android:text="LeafNet Help Page"
+            android:textColor="#fff"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:orientation="vertical"
+            android:paddingBottom="80dp">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginTop="20dp"
+                android:contentDescription="@string/app_name"
+                android:contextClickable="false"
+                android:isScrollContainer="false"
+                android:src="@drawable/logo" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/nunito_sans_extrabold"
+                android:gravity="center_horizontal"
+                android:letterSpacing="0.2"
+                android:text="LEAFNET"
+                android:textAllCaps="true"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:fontFamily="@font/nunito_sans"
+                android:gravity="center_horizontal"
+                android:letterSpacing="0.1"
+                android:text="Leaf Disease Detection"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="12sp"
+                android:layout_marginTop="15dp"
+                android:fontFamily="@font/nunito_sans"
+                android:gravity="center_horizontal"
+                android:textSize="14sp"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:textColor="#232323"
+                android:text="@string/app_desc"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:fontFamily="@font/nunito_sans_extrabold"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:text="DEVELOPER"
+                android:letterSpacing="0.2"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/nunito_sans"
+                android:lineSpacingExtra="12sp"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:text="Alexander Eric Wijaya [311710001]"
+                android:textColor="#232323"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/nunito_sans"
+                android:lineSpacingExtra="12sp"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:text="Angelika Justine [311710003]"
+                android:textColor="#232323"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/nunito_sans"
+                android:lineSpacingExtra="12sp"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:text="Feodora F. F. F. Funay [311710009]"
+                android:textColor="#232323"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/nunito_sans"
+                android:lineSpacingExtra="12sp"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:text="Maxell Yonathan [311710013]"
+                android:textColor="#232323"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+</RelativeLayout>

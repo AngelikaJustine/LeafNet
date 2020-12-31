@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">LeafNet</string>
+    <string name="app_desc">Aplikasi LeafNet dapat mendeteksi penyakit pada tanaman Bell Pepper, Tomato, dan Potato. Deteksi penyakit dilakukan menggunakan gambar daun dari tanaman tersebut. Gambar akan diklasifikasikan kedalam 15 kelas yaitu Bell Pepper Bacterial Spot, Bell Pepper Healthy, Potato Early Blight, Potato Late Blight, Potato Healthy, Tomato Bacterial Spot, Tomato Early Blight, Tomato Late Blight, Tomato Leaf Mold, Tomato Septoria Leaf Spot, Tomato Spider Mites, Tomato Target Spot, Tomato Yellow Leaf Curl Virus, Tomato Mosaic Virus, dan Tomato Healthy.</string>
+</resources>
