@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
@@ -91,58 +92,67 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                int imageTensorIndex = 0;
-                int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
-
-                int x = imageShape[1];
-                int y = imageShape[2];
-                int componentsPerPixel = 3;
-                int totalPixels = x * y;
-
-                bitmap = Bitmap.createScaledBitmap(bitmap, 64, 64, true);
-
-                int[] argbPixels = new int[totalPixels];
-                float[][][][] rgbValuesFinal = new float[1][x][y][componentsPerPixel];
-
-                bitmap.getPixels(argbPixels, 0, x, 0, 0, x, y);
-
-                double[][] reds = new double[x][y];
-                double[][] greens = new double[x][y];
-                double[][] blues = new double[x][y];
-
-                for (int i = 0; i < x; i++) {
-                    for (int j = 0; j < y; j++) {
-                        int argbPixel = bitmap.getPixel(i, j);
-                        int red = Color.red(argbPixel);
-                        int green = Color.green(argbPixel);
-                        int blue = Color.blue(argbPixel);
-                        rgbValuesFinal[0][i][j][0] = (float) (red/255.0);
-                        rgbValuesFinal[0][i][j][1] = (float) (green/255.0);
-                        rgbValuesFinal[0][i][j][2] = (float) (blue/255.0);
-                        reds[i][j] = red;
-                        greens[i][j] = green;
-                        blues[i][j] = blue;
-                    }
+                if(bitmap == null){
+                    Toast.makeText(MainActivity.this,"Please select an image first",Toast.LENGTH_SHORT).show();
                 }
-
-                float[][] outputs = new float[1][15];
-
-                tflite.run(rgbValuesFinal, outputs);
-
-                float[] output = outputs[0];
-
-                int maxProbs = maxProbability(output);
-
-                String diseaseClass = labels.get(maxProbs);
-                classitext.setText(diseaseClass);
-
-                Float certainty = output[maxProbs];
-                certaintyText.setText("" + new DecimalFormat("##.##%").format(certainty));
-                certaintyText.setVisibility(View.VISIBLE);
-
-                Log.d("Output", diseaseClass);
+                else {
+                    leafClassify();
+                }
             }
         });
+    }
+
+    private void leafClassify(){
+        int imageTensorIndex = 0;
+        int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
+
+        int x = imageShape[1];
+        int y = imageShape[2];
+        int componentsPerPixel = 3;
+        int totalPixels = x * y;
+
+        bitmap = Bitmap.createScaledBitmap(bitmap, 64, 64, true);
+
+        int[] argbPixels = new int[totalPixels];
+        float[][][][] rgbValuesFinal = new float[1][x][y][componentsPerPixel];
+
+        bitmap.getPixels(argbPixels, 0, x, 0, 0, x, y);
+
+        double[][] reds = new double[x][y];
+        double[][] greens = new double[x][y];
+        double[][] blues = new double[x][y];
+
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
+                int argbPixel = bitmap.getPixel(i, j);
+                int red = Color.red(argbPixel);
+                int green = Color.green(argbPixel);
+                int blue = Color.blue(argbPixel);
+                rgbValuesFinal[0][i][j][0] = (float) (red/255.0);
+                rgbValuesFinal[0][i][j][1] = (float) (green/255.0);
+                rgbValuesFinal[0][i][j][2] = (float) (blue/255.0);
+                reds[i][j] = red;
+                greens[i][j] = green;
+                blues[i][j] = blue;
+            }
+        }
+
+        float[][] outputs = new float[1][15];
+
+        tflite.run(rgbValuesFinal, outputs);
+
+        float[] output = outputs[0];
+
+        int maxProbs = maxProbability(output);
+
+        String diseaseClass = labels.get(maxProbs);
+        classitext.setText(diseaseClass);
+
+        Float certainty = output[maxProbs];
+        certaintyText.setText("" + new DecimalFormat("##.##%").format(certainty));
+        certaintyText.setVisibility(View.VISIBLE);
+
+        Log.d("Output", diseaseClass);
     }
 
     private MappedByteBuffer loadmodelfile(Activity activity) throws IOException {
