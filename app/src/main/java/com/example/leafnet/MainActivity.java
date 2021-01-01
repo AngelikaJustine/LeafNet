@@ -7,9 +7,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -32,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -39,19 +42,6 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
 
     protected Interpreter tflite;
-    private MappedByteBuffer tfliteModel;
-    private TensorImage inputImageBuffer;
-
-    private  int imageSizeX;
-    private  int imageSizeY;
-
-    private TensorBuffer outputProbabilityBuffer;
-    private TensorProcessor probabilityProcessor;
-
-    private static final float IMAGE_MEAN = 0.0f;
-    private static final float IMAGE_STD = 1.0f;
-    private static final float PROBABILITY_MEAN = 0.0f;
-    private static final float PROBABILITY_STD = 255.0f;
 
     private Bitmap bitmap;
     private List<String> labels;
@@ -59,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView imageView;
     Uri imageuri;
     Button buclassify;
-    TextView classitext;
+    TextView classitext, certaintyText;
     ImageView helpimg;
 
     @Override
@@ -71,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         buclassify = findViewById(R.id.classify);
         classitext = findViewById(R.id.classifytext);
         helpimg = findViewById(R.id.img_help);
+        certaintyText = findViewById(R.id.certaintyText);
 
         helpimg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,41 +93,56 @@ public class MainActivity extends AppCompatActivity {
 
                 int imageTensorIndex = 0;
                 int[] imageShape = tflite.getInputTensor(imageTensorIndex).shape(); // {1, height, width, 3}
-                imageSizeY = imageShape[1];
-                imageSizeX = imageShape[2];
-                DataType imageDataType = tflite.getInputTensor(imageTensorIndex).dataType();
 
-                int probabilityTensorIndex = 0;
-                int[] probabilityShape =
-                        tflite.getOutputTensor(probabilityTensorIndex).shape(); // {1, NUM_CLASSES}
-                DataType probabilityDataType = tflite.getOutputTensor(probabilityTensorIndex).dataType();
+                int x = imageShape[1];
+                int y = imageShape[2];
+                int componentsPerPixel = 3;
+                int totalPixels = x * y;
 
-                inputImageBuffer = new TensorImage(imageDataType);
-                outputProbabilityBuffer = TensorBuffer.createFixedSize(probabilityShape, probabilityDataType);
-                probabilityProcessor = new TensorProcessor.Builder().add(getPostprocessNormalizeOp()).build();
+                bitmap = Bitmap.createScaledBitmap(bitmap, 64, 64, true);
 
-                inputImageBuffer = loadImage(bitmap);
+                int[] argbPixels = new int[totalPixels];
+                float[][][][] rgbValuesFinal = new float[1][x][y][componentsPerPixel];
 
-                tflite.run(inputImageBuffer.getBuffer(),outputProbabilityBuffer.getBuffer().rewind());
-                showresult();
+                bitmap.getPixels(argbPixels, 0, x, 0, 0, x, y);
+
+                double[][] reds = new double[x][y];
+                double[][] greens = new double[x][y];
+                double[][] blues = new double[x][y];
+
+                for (int i = 0; i < x; i++) {
+                    for (int j = 0; j < y; j++) {
+                        int argbPixel = bitmap.getPixel(i, j);
+                        int red = Color.red(argbPixel);
+                        int green = Color.green(argbPixel);
+                        int blue = Color.blue(argbPixel);
+                        rgbValuesFinal[0][i][j][0] = (float) (red/255.0);
+                        rgbValuesFinal[0][i][j][1] = (float) (green/255.0);
+                        rgbValuesFinal[0][i][j][2] = (float) (blue/255.0);
+                        reds[i][j] = red;
+                        greens[i][j] = green;
+                        blues[i][j] = blue;
+                    }
+                }
+
+                float[][] outputs = new float[1][15];
+
+                tflite.run(rgbValuesFinal, outputs);
+
+                float[] output = outputs[0];
+
+                int maxProbs = maxProbability(output);
+
+                String diseaseClass = labels.get(maxProbs);
+                classitext.setText(diseaseClass);
+
+                Float certainty = output[maxProbs];
+                certaintyText.setText("" + new DecimalFormat("##.##%").format(certainty));
+                certaintyText.setVisibility(View.VISIBLE);
+
+                Log.d("Output", diseaseClass);
             }
         });
-    }
-
-    private TensorImage loadImage(final Bitmap bitmap) {
-        // Loads bitmap into a TensorImage.
-        inputImageBuffer.load(bitmap);
-
-        // Creates processor for the TensorImage.
-        int cropSize = Math.min(bitmap.getWidth(), bitmap.getHeight());
-        // TODO(b/143564309): Fuse ops inside ImageProcessor.
-        ImageProcessor imageProcessor =
-                new ImageProcessor.Builder()
-                        .add(new ResizeWithCropOrPadOp(cropSize, cropSize))
-                        .add(new ResizeOp(imageSizeX, imageSizeY, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
-                        .add(getPreprocessNormalizeOp())
-                        .build();
-        return imageProcessor.process(inputImageBuffer);
     }
 
     private MappedByteBuffer loadmodelfile(Activity activity) throws IOException {
@@ -148,30 +154,21 @@ public class MainActivity extends AppCompatActivity {
         return fileChannel.map(FileChannel.MapMode.READ_ONLY,startoffset,declaredLength);
     }
 
-    private TensorOperator getPreprocessNormalizeOp() {
-        return new NormalizeOp(IMAGE_MEAN, IMAGE_STD);
-    }
-    private TensorOperator getPostprocessNormalizeOp(){
-        return new NormalizeOp(PROBABILITY_MEAN, PROBABILITY_STD);
-    }
-
-    private void showresult(){
-
+    private int maxProbability(float[] output){
         try{
-            labels = FileUtil.loadLabels(this,"newdict.txt");
+            labels = FileUtil.loadLabels(this, "leafDiseaseClass.txt");
         }catch (Exception e){
             e.printStackTrace();
         }
-        Map<String, Float> labeledProbability =
-                new TensorLabel(labels, probabilityProcessor.process(outputProbabilityBuffer))
-                        .getMapWithFloatValue();
-        float maxValueInMap =(Collections.max(labeledProbability.values()));
 
-        for (Map.Entry<String, Float> entry : labeledProbability.entrySet()) {
-            if (entry.getValue()==maxValueInMap) {
-                classitext.setText(entry.getKey());
-            }
+        int maxAt = 0;
+        for (int i = 0; i < output.length; i++) {
+            maxAt = output[i] > output[maxAt] ? i : maxAt;
         }
+
+        Log.d("Output", String.valueOf(maxAt));
+
+        return maxAt;
     }
 
     @Override

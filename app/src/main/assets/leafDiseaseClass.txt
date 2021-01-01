@@ -1,0 +1,15 @@
+Tomato Early Blight
+Tomato Late Blight
+Tomato Septoria Leaf Spot
+Tomato Target Spot
+Tomato Leaf Mold
+Potato Late Blight
+Tomato Bacterial Spot
+Potato Early Blight
+Bell Pepper Healthy
+Tomato Healthy
+Tomato Mosaic Virus
+Potato Healthy
+Bell Pepper Bacterial Spot
+Tomato Spider Mites
+Tomato Yellow Leaf Curl Virus
