@@ -147,12 +147,14 @@ public class MainActivity extends AppCompatActivity {
 
         String diseaseClass = labels.get(maxProbs);
         classitext.setText(diseaseClass);
+        classitext.setTextColor(Color.parseColor("#134E5E"));
 
         Float certainty = output[maxProbs];
-        certaintyText.setText("" + new DecimalFormat("##.##%").format(certainty));
+        certaintyText.setText("Certainty Level : " + new DecimalFormat("##.##%").format(certainty));
         certaintyText.setVisibility(View.VISIBLE);
 
         Log.d("Output", diseaseClass);
+        Log.d("Output", String.valueOf(certainty));
     }
 
     private MappedByteBuffer loadmodelfile(Activity activity) throws IOException {
