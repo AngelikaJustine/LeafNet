@@ -49,8 +49,10 @@
         android:layout_above="@+id/certaintyText"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
+        android:lineSpacingExtra="8sp"
         android:fontFamily="@font/nunito_sans_extrabold"
-        android:text="Click below to select an image"
+        android:text="Click Rectangle below \nto select an image"
+        android:textAlignment="center"
         android:textAllCaps="true"
         android:textSize="15sp"
         android:letterSpacing="0.1"
@@ -93,6 +95,6 @@
         android:fontFamily="@font/nunito_sans_extrabold"
         android:text="Classify"
         android:textColor="#fff"
-        android:textStyle="bold" />
+        android:textStyle="bold"/>
 
 </RelativeLayout>
